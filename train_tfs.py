@@ -21,7 +21,7 @@ parser.add_argument('--embedding_path_random',type=str, help='path of embedding'
 parser.add_argument('--save_model_path', type=str, help='path of save data', 
                     default='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/')
 parser.add_argument('--batch_size', type=int, help='batch size of the training',
-                    default=10)
+                    default=50)
 parser.add_argument('--head', type=int, help='head of the model',
                     default=10)
 parser.add_argument('--layers', type=int, help='layers of the encoder-decoder in transformers',
@@ -31,7 +31,7 @@ parser.add_argument('--dim_ffd', type=int, help='dimension of the feedforward ne
 parser.add_argument('--lr', type=float, help='the learning rate in training',
                     default=3e-4)
 parser.add_argument('--epoch', type=int, help='the epoch number in training',
-                    default=60)
+                    default=100)
 parser.add_argument('--save_text_path', type=str, help='the save text of log',
                     default='./save_text')
 parser.add_argument('--decoder_layers', type=int, help='the layers of decoder',
@@ -175,6 +175,8 @@ for epoch in range(EPOCH):
             src = src.cuda()
             trg = trg.cuda()
             labels = labels.cuda()
+            src_padding_mask = src_padding_mask.cuda()
+            tgt_padding_mask
 
         src = embed(src)
         trg = embed(trg)
@@ -200,12 +202,12 @@ for epoch in range(EPOCH):
         tgt_mask = model.generate_square_subsequent_mask(trg.size(0))
         # tgt_mask = None
 
-        out = model(src, trg, tgt_mask=tgt_mask, 
-                    src_key_padding_mask=src_padding_mask,
-                    tgt_key_padding_mask=tgt_padding_mask,
-                    memory_key_padding_mask=src_padding_mask)
+        # out = model(src, trg, tgt_mask=tgt_mask, 
+        #             src_key_padding_mask=src_padding_mask,
+        #             tgt_key_padding_mask=tgt_padding_mask,
+        #             memory_key_padding_mask=src_padding_mask)
 
-        # out = model(src, trg, tgt_mask=tgt_mask)
+        out = model(src, trg, tgt_mask=tgt_mask)
 
         ### modify ---------------------------
         out = torch.transpose(out, 0, 1)
