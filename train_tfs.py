@@ -204,7 +204,6 @@ for epoch in range(EPOCH):
         out = out.reshape(-1, 2)
         labels = labels.view(-1)
         # -------------------------------------
-
         ###  before -------------------------
         # out = out.view(-1, 2)
         # labels = labels.view(-1)
