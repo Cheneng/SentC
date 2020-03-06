@@ -64,7 +64,7 @@ class CompresDataset(data.Dataset):
         return origin_sentence, decode_input_sentence, out_label
 
     def __len__(self):
-        return len(self.origin[:30])
+        return len(self.origin)
 
 
 class SeqAutoEncoderDataset(data.Dataset):
