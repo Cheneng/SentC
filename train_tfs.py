@@ -176,7 +176,7 @@ for epoch in range(EPOCH):
             trg = trg.cuda()
             labels = labels.cuda()
             src_padding_mask = src_padding_mask.cuda()
-            tgt_padding_mask
+            tgt_padding_mask = tgt_padding_mask.cuda()
 
         src = embed(src)
         trg = embed(trg)
