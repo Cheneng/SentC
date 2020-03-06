@@ -27,22 +27,24 @@ class BasicTransformer(BasicModule):
 
         self.out_linear = nn.Linear(d_model, 2)
 
-        # self.init_weights()
-
         
-
-    def forward(self, src, tgt, tgt_mask=None):
-        memory = self.encode(src)
-        decode_out = self.decode(tgt, memory, tgt_mask=tgt_mask)
+    def forward(self, src, tgt, src_key_padding_mask=None, tgt_key_padding_mask=None, 
+                memory_key_padding_mask=None, tgt_mask=None):
+        memory = self.encode(src, src_key_padding_mask=src_key_padding_mask)
+        decode_out = self.decode(tgt, memory, tgt_mask=tgt_mask, 
+                                 tgt_key_padding_mask=tgt_key_padding_mask,
+                                 memory_key_padding_mask=memory_key_padding_mask)
         out = self.out_linear(decode_out)
         return out
 
-    def encode(self, src):
-        memory = self.encoder(src)
+    def encode(self, src, src_key_padding_mask=None):
+        memory = self.encoder(src, src_key_padding_mask=src_key_padding_mask)
         return memory
 
-    def decode(self, tgt, memory, tgt_mask=None):
-        out = self.decoder(tgt, memory, tgt_mask=tgt_mask)
+    def decode(self, tgt, memory, tgt_mask, tgt_key_padding_mask, memory_key_padding_mask):
+        out = self.decoder(tgt, memory, tgt_mask=tgt_mask, 
+                           tgt_key_padding_mask=tgt_key_padding_mask,
+                           memory_key_padding_mask=memory_key_padding_mask)
         return out
 
     def generate_square_subsequent_mask(self, sz):
@@ -97,7 +99,7 @@ if __name__ == '__main__':
     out = model(src, trg)
 
     mask = model.generate_square_subsequent_mask(30)
-    out = model(src, trg, mask)
+    out = model(src, trg, tgt_mask=mask)
 
     # print(out.size())
 
@@ -106,6 +108,6 @@ if __name__ == '__main__':
     print(p.size())
 
     # print(next(model.parameters()).is_cuda)
-    print(model.parameters)
+    # print(model.parameters)
 
 

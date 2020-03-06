@@ -21,7 +21,7 @@ parser.add_argument('--embedding_path_random',type=str, help='path of embedding'
 parser.add_argument('--save_model_path', type=str, help='path of save data', 
                     default='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/')
 parser.add_argument('--batch_size', type=int, help='batch size of the training',
-                    default=4)
+                    default=10)
 parser.add_argument('--head', type=int, help='head of the model',
                     default=10)
 parser.add_argument('--layers', type=int, help='layers of the encoder-decoder in transformers',
@@ -166,6 +166,9 @@ for epoch in range(EPOCH):
 
         flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
 
+        src_padding_mask = (src == 0)
+        tgt_padding_mask = (trg == 0)
+
         # CUDA 
         if torch.cuda.is_available():
             flag4encoder = flag4encoder.cuda()
@@ -197,12 +200,18 @@ for epoch in range(EPOCH):
         tgt_mask = model.generate_square_subsequent_mask(trg.size(0))
         # tgt_mask = None
 
-        out = model(src, trg, tgt_mask=tgt_mask)
+        out = model(src, trg, tgt_mask=tgt_mask, 
+                    src_key_padding_mask=src_padding_mask,
+                    tgt_key_padding_mask=tgt_padding_mask,
+                    memory_key_padding_mask=src_padding_mask)
+
+        # out = model(src, trg, tgt_mask=tgt_mask)
 
         ### modify ---------------------------
         out = torch.transpose(out, 0, 1)
         out = out.reshape(-1, 2)
         labels = labels.view(-1)
+
         # -------------------------------------
         ###  before -------------------------
         # out = out.view(-1, 2)
