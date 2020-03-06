@@ -1,0 +1,13 @@
+python3 train_tfs.py \
+    --data_dir='./data/train_pairs' \
+    --dict_path='./checkpoint/dict_20000.pkl' \
+    --embedding_path_random='./model/save_embedding_97and3.ckpt' \
+    --save_model_path='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/' \
+    --batch_size=25 \
+    --head=4 \
+    --layers=8 \
+    --dim_ffd=2000 \
+    --lr=3e-4 \
+    --epoch=60 \
+    --save_text_path='save_text'
+
