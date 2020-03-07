@@ -61,7 +61,7 @@ SAVE_TEXT_PATH = args.save_text_path
 
 PRINT_STEP = 5
 # SAVE_STEP = 50
-GPU_NUM = 0
+GPU_NUM = 1
 
 SAVE_MODEL_PATH = args.save_model_path.format(LR, BATCH_SIZE, HEAD, LAYERS, FFD)
 
@@ -75,6 +75,15 @@ torch.manual_seed(2)
 
 # word embedding
 embed = nn.Embedding(num_embeddings=20000, embedding_dim=97)
+
+if os.path.exists(EMBEDDING_PATH_RANDOM) is True:
+    print('load the embedding')
+    embed.load_state_dict(torch.load(EMBEDDING_PATH_RANDOM))
+else:
+    print('save the embedding')
+    torch.save(embed.state_dict(), EMBEDDING_PATH_RANDOM)
+
+
 embed_labels = get_flag_embed()
 
 grads = {}
@@ -168,6 +177,7 @@ for epoch in range(EPOCH):
 
         # src_padding_mask = (src == 0)
         # tgt_padding_mask = (trg == 0)
+        
 
         # CUDA 
         if torch.cuda.is_available():
