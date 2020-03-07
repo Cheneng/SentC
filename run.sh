@@ -4,10 +4,10 @@ python3 train_tfs.py \
     --embedding_path_random='./model/save_embedding_97and3.ckpt' \
     --save_model_path='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/' \
     --batch_size=100 \
-    --head=100 \
+    --head=10 \
     --layers=4 \
     --dim_ffd=100 \
     --lr=3e-4 \
     --epoch=100 \
-    --save_text_path='save_text'
+    --save_text_path='save_text_no_mask'
 

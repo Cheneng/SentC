@@ -33,7 +33,7 @@ parser.add_argument('--lr', type=float, help='the learning rate in training',
 parser.add_argument('--epoch', type=int, help='the epoch number in training',
                     default=100)
 parser.add_argument('--save_text_path', type=str, help='the save text of log',
-                    default='./save_text')
+                    default='./save_text_no_mask')
 parser.add_argument('--decoder_layers', type=int, help='the layers of decoder',
                     default=1)
 
@@ -166,8 +166,8 @@ for epoch in range(EPOCH):
 
         flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
 
-        src_padding_mask = (src == 0)
-        tgt_padding_mask = (trg == 0)
+        # src_padding_mask = (src == 0)
+        # tgt_padding_mask = (trg == 0)
 
         # CUDA 
         if torch.cuda.is_available():
@@ -175,8 +175,8 @@ for epoch in range(EPOCH):
             src = src.cuda()
             trg = trg.cuda()
             labels = labels.cuda()
-            src_padding_mask = src_padding_mask.cuda()
-            tgt_padding_mask = tgt_padding_mask.cuda()
+            # src_padding_mask = src_padding_mask.cuda()
+            # tgt_padding_mask = tgt_padding_mask.cuda()
 
         src = embed(src)
         trg = embed(trg)
