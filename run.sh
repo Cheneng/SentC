@@ -3,7 +3,7 @@ python3 train_tfs.py \
     --dict_path='./checkpoint/dict_20000.pkl' \
     --embedding_path_random='./model/save_embedding_97and3.ckpt' \
     --save_model_path='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/' \
-    --batch_size=100 \
+    --batch_size=200 \
     --head=10 \
     --layers=4 \
     --dim_ffd=100 \
