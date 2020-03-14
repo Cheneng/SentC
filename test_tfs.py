@@ -141,6 +141,10 @@ if __name__ == '__main__':
 
     embed_labels = get_flag_embed()
 
+    if torch.cuda.is_available():
+        embed = embed.cuda()
+        embed_labels = embed_labels.cuda()
+
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
                      save_path=SAVE_DIR)
 

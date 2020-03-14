@@ -93,7 +93,7 @@ class PositionalEncoding(nn.Module):
         # pe = pe.unsqueeze(0).transpose(0, 1)
         pe = pe.unsqueeze(0)        # [batch_size, seq_len, embedding]
         self.register_buffer('pe', pe)
-        print('pe', pe.size())
+        # print('pe', pe.size())
 
     def forward(self, x):
         x = x + self.pe[:, :x.size(1), :]
