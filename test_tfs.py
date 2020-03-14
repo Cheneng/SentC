@@ -20,6 +20,8 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
     recall_all = 0
 
     add_position = PositionalEncoding(d_model=97)
+    if torch.cuda.is_available():
+        add_position.cuda()
 
     for step, (src, trg, labels) in enumerate(dataloader):
         
