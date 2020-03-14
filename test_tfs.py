@@ -85,11 +85,11 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         recall_correct += torch.sum(ground_truth & predict_labels).item()
         recall_all += torch.sum(ground_truth).item()
 
-        # P = correct_num / batch_num
-        # R = recall_correct / recall_all
-        # F1 = 2 * P * R /  (P + R)
+        P = correct_num / batch_num
+        R = recall_correct / recall_all
+        F1 = 2 * P * R /  (P + R)
 
-        # print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
+        print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
 
         print('finish the step {}'.format(step))
         
