@@ -129,7 +129,7 @@ if __name__ == '__main__':
         d_model=100,
         nhead=10,
         num_encoder_layer=4,
-        num_decoder_layer=4,
+        num_decoder_layer=1,
         dim_feedforward=100
     )
 
