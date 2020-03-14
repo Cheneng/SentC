@@ -111,7 +111,7 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = '/checkpoint/normal/transformers_epoch98.ckpt'
+    MODEL_PATH = './checkpoint/normal/transformers_epoch98.ckpt'
 
     if os.path.exists(SAVE_PATH) is False:
         os.makedirs(SAVE_PATH)
