@@ -85,11 +85,11 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         recall_correct += torch.sum(ground_truth & predict_labels).item()
         recall_all += torch.sum(ground_truth).item()
 
-        P = correct_num / batch_num
-        R = recall_correct / recall_all
-        F1 = 2 * P * R /  (P + R)
+        # P = correct_num / batch_num
+        # R = recall_correct / recall_all
+        # F1 = 2 * P * R /  (P + R)
 
-        print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
+        # print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
 
         print('finish the step {}'.format(step))
         
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=250,
+                            batch_size=100,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
 
