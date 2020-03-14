@@ -177,7 +177,6 @@ for epoch in range(EPOCH):
 
         # src_padding_mask = (src == 0)
         # tgt_padding_mask = (trg == 0)
-        
 
         # CUDA 
         if torch.cuda.is_available():

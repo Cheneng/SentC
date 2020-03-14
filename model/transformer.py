@@ -41,11 +41,19 @@ class BasicTransformer(BasicModule):
         memory = self.encoder(src, src_key_padding_mask=src_key_padding_mask)
         return memory
 
-    def decode(self, tgt, memory, tgt_mask, tgt_key_padding_mask, memory_key_padding_mask):
+    def decode(self, tgt, memory, tgt_mask=None, tgt_key_padding_mask=None, memory_key_padding_mask=None):
         out = self.decoder(tgt, memory, tgt_mask=tgt_mask, 
                            tgt_key_padding_mask=tgt_key_padding_mask,
                            memory_key_padding_mask=memory_key_padding_mask)
         return out
+    
+    def decode_last(self, tgt, memory, tgt_mask=None, tgt_key_padding_mask=None, memory_key_padding_mask=None):
+        out = self.decode(tgt, memory, tgt_mask=tgt_mask, 
+                           tgt_key_padding_mask=tgt_key_padding_mask,
+                           memory_key_padding_mask=memory_key_padding_mask)
+        out = self.out_linear(out[-1])
+        return out
+
 
     def generate_square_subsequent_mask(self, sz):
         r"""Generate a square mask for the sequence. The masked positions are filled with float('-inf').
@@ -102,10 +110,22 @@ if __name__ == '__main__':
     out = model(src, trg, tgt_mask=mask)
 
     # print(out.size())
+    memory = model.encode(src)
+    print('memory', memory.size())
 
-    position_model = PositionalEncoding(d_model=97)
-    p = position_model(torch.randn(20, 16, 97))
-    print(p.size())
+    out = model.decode(trg, memory)
+
+    print('out', out.size())
+    print('last out', out[-1].size())
+
+    out = model.decode_last(trg, memory)
+    print(torch.max(out, -1)[1].size())
+    print('decode_last', out.size())
+
+
+    # position_model = PositionalEncoding(d_model=97)
+    # p = position_model(torch.randn(20, 16, 97))
+    # print(p.size())
 
     # print(next(model.parameters()).is_cuda)
     # print(model.parameters)
