@@ -27,11 +27,16 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         
         flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
 
+        trg_flag = torch.tensor([[0], [2]]).long()
+
+        trg_flag = trg_flag.expand(2, dataloader.batch_size)
+
         if torch.cuda.is_available():
             flag4encoder = flag4encoder.cuda()
             src = src.cuda()
             trg = trg.cuda()
             labels = labels.cuda()
+            trg_flag = trg_flag.cuda()
         
         src = embed(src)
         trg = embed(trg)
@@ -45,11 +50,10 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         trg = torch.transpose(trg, 0, 1)   
         labels = torch.transpose(labels, 0, 1)     
 
-        trg_flag = torch.tensor([[0], [2]]).long()
-
-        trg_flag = trg_flag.expand(2, dataloader.batch_size)
+        
 
         embed_flag = embed_labels(trg_flag)
+
 
         memory = model.encode(src)
 
@@ -59,8 +63,8 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
             out = model.decode_last(index_trg, memory)
             last_labels = torch.max(out, -1)[1].unsqueeze(0)
             trg_flag = torch.cat([trg_flag, last_labels], 0)
-            if torch.cuda.is_available():
-                trg_flag = trg_flag.cuda()
+            # if torch.cuda.is_available():
+            #     trg_flag = trg_flag.cuda()
             embed_flag = embed_labels(trg_flag)
 
             # print(trg_flag)
