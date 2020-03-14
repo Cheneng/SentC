@@ -50,10 +50,7 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         trg = torch.transpose(trg, 0, 1)   
         labels = torch.transpose(labels, 0, 1)     
 
-        
-
         embed_flag = embed_labels(trg_flag)
-
 
         memory = model.encode(src)
 
@@ -152,6 +149,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         embed = embed.cuda()
         embed_labels = embed_labels.cuda()
+        model.cuda()
 
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
                      save_path=SAVE_DIR)
