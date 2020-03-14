@@ -8,6 +8,7 @@ import torch.nn as nn
 import dataset
 import os
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, help='path of training dir', 
@@ -83,6 +84,7 @@ else:
     print('save the embedding')
     torch.save(embed.state_dict(), EMBEDDING_PATH_RANDOM)
 
+time.sleep(3)
 
 embed_labels = get_flag_embed()
 
