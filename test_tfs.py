@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     # Test
     DICT_PATH = './checkpoint/dict_20000.pkl'
-    TEST_DIR = './data/train_pairs'
+    TEST_DIR = './data/dataset_eval'
     EMBED_PATH = './model/save_embedding_97and3.ckpt'
     SAVE_PATH = './test_out'
     SAVE_FILE = 'demo.txt'
