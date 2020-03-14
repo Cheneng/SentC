@@ -103,7 +103,7 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
     model.train()
 
     with open(save_path, 'w') as f:
-        f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.fromat(P, R, F1, C_rate))
+        f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.format(P, R, F1, C_rate))
 
 
 if __name__ == '__main__':
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = './checkpoint/normal/transformers_epoch10.ckpt'
+    MODEL_PATH = './checkpoint/normal/transformers_epoch1.ckpt'
 
     if os.path.exists(SAVE_PATH) is False:
         os.makedirs(SAVE_PATH)
