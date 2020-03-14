@@ -59,6 +59,8 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
             out = model.decode_last(index_trg, memory)
             last_labels = torch.max(out, -1)[1].unsqueeze(0)
             trg_flag = torch.cat([trg_flag, last_labels], 0)
+            if torch.cuda.is_available():
+                trg_flag = trg_flag.cuda()
             embed_flag = embed_labels(trg_flag)
 
             # print(trg_flag)
