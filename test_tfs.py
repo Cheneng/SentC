@@ -116,7 +116,7 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = './checkpoint/normal/transformers_epoch98.ckpt'
+    MODEL_PATH = './checkpoint/normal/transformers_epoch10.ckpt'
 
     if os.path.exists(SAVE_PATH) is False:
         os.makedirs(SAVE_PATH)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=2,
+                            batch_size=250,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
 
