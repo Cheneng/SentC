@@ -69,13 +69,13 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
             trg_flag = torch.cat([trg_flag, last_labels], 0)
             embed_flag = embed_labels(trg_flag)
 
+        trg_flag = trg_flag[1:, :]
 
         mask_matrix = (labels < 2)
         ground_truth = torch.masked_select(labels, mask_matrix)
-        predict_labels = torch.masked_select(torch.max(out, 1)[1],
+        predict_labels = torch.masked_select(trg_flag,
                                              mask_matrix)
         print(ground_truth, predict_labels)
-        # raise ValueError
         C_rate_all += len(predict_labels)   # length of all sentence
         C_rate_remain += torch.sum(predict_labels).item()
 
@@ -116,7 +116,8 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = './checkpoint/normal/transformers_epoch1.ckpt'
+    MODEL_PATH = './checkpoint/normal/transformers_epoch50.ckpt'
+    # MODEL_PATH = './checkpoint/transformers_epoch90.ckpt'
 
     if os.path.exists(SAVE_PATH) is False:
         os.makedirs(SAVE_PATH)
@@ -126,7 +127,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=100,
+                            batch_size=200,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
 
@@ -138,7 +139,8 @@ if __name__ == '__main__':
         dim_feedforward=100
     )
 
-    model.load(MODEL_PATH)
+    # model.load(MODEL_PATH)
+    model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
 
     # word embedding
     embed = nn.Embedding(num_embeddings=20000, embedding_dim=97)
@@ -146,10 +148,6 @@ if __name__ == '__main__':
 
     embed_labels = get_flag_embed()
 
-    # if torch.cuda.is_available():
-    #     embed = embed.cuda()
-    #     embed_labels = embed_labels.cuda()
-    #     model.cuda()
 
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
                      save_path=SAVE_DIR)
