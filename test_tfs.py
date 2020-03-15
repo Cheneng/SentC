@@ -131,7 +131,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=1000,
+                            batch_size=400,
                             # batch_size=2,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
