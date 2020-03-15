@@ -11,7 +11,6 @@ from tqdm import tqdm
 def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step):
 
     model.eval()
-
     C_rate_remain= 0
     C_rate_all = 0
     correct_num = 0
@@ -19,89 +18,91 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
     recall_correct = 0
     recall_all = 0
 
-    add_position = PositionalEncoding(d_model=97)
-    if torch.cuda.is_available():
-        add_position.cuda()
-        embed = embed.cuda()
-        embed_labels = embed_labels.cuda()
-        model.cuda()
+    with torch.no_grad():
 
-    for step, (src, trg, labels) in enumerate(dataloader):
-        
-        flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
-
-        trg_flag = torch.tensor([[0], [2]]).long()
-
-        trg_flag = trg_flag.expand(2, dataloader.batch_size)
-
+        add_position = PositionalEncoding(d_model=97)
         if torch.cuda.is_available():
+            add_position.cuda()
+            embed = embed.cuda()
+            embed_labels = embed_labels.cuda()
+            model.cuda()
+
+        for step, (src, trg, labels) in enumerate(dataloader):
             
-            flag4encoder = flag4encoder.cuda()
-            src = src.cuda()
-            trg = trg.cuda()
-            labels = labels.cuda()
-            trg_flag = trg_flag.cuda()
-        
-        src = embed(src)
-        trg = embed(trg)
+            flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
 
-        src = add_position(src)
-        trg = add_position(trg)
+            trg_flag = torch.tensor([[0], [2]]).long()
 
-        src = torch.cat([src, flag4encoder], dim=2)
+            trg_flag = trg_flag.expand(2, dataloader.batch_size)
 
-        src = torch.transpose(src, 0, 1)
-        trg = torch.transpose(trg, 0, 1)   
-        labels = torch.transpose(labels, 0, 1)     
+            if torch.cuda.is_available():
+                
+                flag4encoder = flag4encoder.cuda()
+                src = src.cuda()
+                trg = trg.cuda()
+                labels = labels.cuda()
+                trg_flag = trg_flag.cuda()
+            
+            src = embed(src)
+            trg = embed(trg)
 
-        embed_flag = embed_labels(trg_flag)
+            src = add_position(src)
+            trg = add_position(trg)
 
-        memory = model.encode(src)
+            src = torch.cat([src, flag4encoder], dim=2)
 
-        for index in tqdm(range(1, trg.size(0))):
-            index_trg = trg[:index+1]
-            index_trg = torch.cat([index_trg, embed_flag], dim=-1)
+            src = torch.transpose(src, 0, 1)
+            trg = torch.transpose(trg, 0, 1)   
+            labels = torch.transpose(labels, 0, 1)     
 
-            tgt_mask = model.generate_square_subsequent_mask(index+1)
-
-            out = model.decode_last(index_trg, memory, tgt_mask=tgt_mask)
-            last_labels = torch.max(out, -1)[1].unsqueeze(0)
-            trg_flag = torch.cat([trg_flag, last_labels], 0)
             embed_flag = embed_labels(trg_flag)
 
-        trg_flag = trg_flag[1:, :]
+            memory = model.encode(src)
 
-        labels = labels.cpu()
-        trg_flag = trg_flag.cpu()
+            for index in tqdm(range(1, trg.size(0))):
+                index_trg = trg[:index+1]
+                index_trg = torch.cat([index_trg, embed_flag], dim=-1)
 
-        mask_matrix = (labels < 2)
-        ground_truth = torch.masked_select(labels, mask_matrix)
-        predict_labels = torch.masked_select(trg_flag,
-                                             mask_matrix)
-        print(ground_truth, predict_labels)
-        C_rate_all += len(predict_labels)   # length of all sentence
-        C_rate_remain += torch.sum(predict_labels).item()
+                tgt_mask = model.generate_square_subsequent_mask(index+1)
 
-        correct_num += torch.sum(predict_labels == ground_truth).item()
-        batch_num += len(ground_truth)
+                out = model.decode_last(index_trg, memory, tgt_mask=tgt_mask)
+                last_labels = torch.max(out, -1)[1].unsqueeze(0)
+                trg_flag = torch.cat([trg_flag, last_labels], 0)
+                embed_flag = embed_labels(trg_flag)
 
-        recall_correct += torch.sum(ground_truth & predict_labels).item()
-        recall_all += torch.sum(ground_truth).item()
+            trg_flag = trg_flag[1:, :]
 
+            labels = labels.detach()
+            trg_flag = trg_flag.detach()
+
+            mask_matrix = (labels < 2)
+            ground_truth = torch.masked_select(labels, mask_matrix)
+            predict_labels = torch.masked_select(trg_flag,
+                                                mask_matrix)
+            print(ground_truth, predict_labels)
+            C_rate_all += len(predict_labels)   # length of all sentence
+            C_rate_remain += torch.sum(predict_labels).item()
+
+            correct_num += torch.sum(predict_labels == ground_truth).item()
+            batch_num += len(ground_truth)
+
+            recall_correct += torch.sum(ground_truth & predict_labels).item()
+            recall_all += torch.sum(ground_truth).item()
+
+            P = correct_num / batch_num
+            R = recall_correct / recall_all
+            F1 = 2 * P * R /  (P + R)
+
+            print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
+
+            print('finish the step {} / {}'.format(step, all_step))
+            
         P = correct_num / batch_num
         R = recall_correct / recall_all
         F1 = 2 * P * R /  (P + R)
+        C_rate = C_rate_remain / C_rate_all
 
-        print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
-
-        print('finish the step {} / {}'.format(step, all_step))
-        
-    P = correct_num / batch_num
-    R = recall_correct / recall_all
-    F1 = 2 * P * R /  (P + R)
-    C_rate = C_rate_remain / C_rate_all
-
-    print('Precision {}; Recall {}; F1 {}; C_rate {}'.format(P, R, F1, C_rate))
+        print('Precision {}; Recall {}; F1 {}; C_rate {}'.format(P, R, F1, C_rate))
 
     model.train()
 
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=400,
+                            batch_size=200,
                             # batch_size=2,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
