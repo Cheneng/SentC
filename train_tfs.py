@@ -77,19 +77,12 @@ torch.manual_seed(2)
 # word embedding
 embed = nn.Embedding(num_embeddings=20000, embedding_dim=97)
 
-if os.path.exists(EMBEDDING_PATH_RANDOM) is True:
-    print('load the embedding')
-    embed.load_state_dict(torch.load(EMBEDDING_PATH_RANDOM))
-else:
-    print('save the embedding')
-    torch.save(embed.state_dict(), EMBEDDING_PATH_RANDOM)
-
-time.sleep(3)
+print('loading the embedding')
+embed.load_state_dict(torch.load(EMBEDDING_PATH_RANDOM))
 
 embed_labels = get_flag_embed()
 
 grads = {}
-
 
 
 # Model
@@ -99,6 +92,12 @@ model = BasicTransformer(d_model=100,
                          num_decoder_layer=DECODER_LAYERS,
                          dim_feedforward=FFD)
 
+# pretrain_model_path = './checkpoint/transformers_epoch90.ckpt'
+
+# if os.path.exists(pretrain_model_path):
+#     model.load_state_dict(torch.load(pretrain_model_path, map_location=torch.device('cpu')))
+#     print('loading the pretrain model...')
+#     time.sleep(3)
 
 def save_grad(name, in_, out):
     # def hook(out):

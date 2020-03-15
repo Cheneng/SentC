@@ -5,7 +5,8 @@ python3 train_tfs.py \
     --save_model_path='./checkpoint/Transformer_lr{}_b{}_head{}_layer{}_ff{}/' \
     --batch_size=200 \
     --head=10 \
-    --layers=4 \
+    --layers=2 \
+    --decoder_layers=2 \
     --dim_ffd=100 \
     --lr=3e-4 \
     --epoch=100 \

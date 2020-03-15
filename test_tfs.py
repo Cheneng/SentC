@@ -112,6 +112,7 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
 
 if __name__ == '__main__':
 
+
     # Test
     DICT_PATH = './checkpoint/dict_20000.pkl'
     TEST_DIR = './data/dataset_eval' if torch.cuda.is_available() else './data/train_pairs'
