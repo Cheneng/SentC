@@ -8,7 +8,7 @@ import os
 from tqdm import tqdm
 
 
-def test_transformer(model, dataloader, embed, embed_labels, save_path):
+def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step):
 
     model.eval()
 
@@ -91,12 +91,12 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
 
         print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
 
-        print('finish the step {}'.format(step))
+        print('finish the step {} / {}'.format(step, all_step))
         
     P = correct_num / batch_num
     R = recall_correct / recall_all
     F1 = 2 * P * R /  (P + R)
-    C_rate = C_rate_remain / C_rate_remain
+    C_rate = C_rate_remain / C_rate_all
 
     print('Precision {}; Recall {}; F1 {}; C_rate {}'.format(P, R, F1, C_rate))
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = './checkpoint/normal/transformers_epoch50.ckpt'
+    MODEL_PATH = './checkpoint/normal/transformers_epoch10.ckpt'
     # MODEL_PATH = './checkpoint/transformers_epoch90.ckpt'
 
     if os.path.exists(SAVE_PATH) is False:
@@ -127,7 +127,8 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=200,
+                            batch_size=400,
+                            # batch_size=2,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
 
@@ -150,6 +151,6 @@ if __name__ == '__main__':
 
 
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
-                     save_path=SAVE_DIR)
+                     save_path=SAVE_DIR, all_step=(len(data) // testloader.batch_size))
 
 
