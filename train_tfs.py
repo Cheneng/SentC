@@ -177,8 +177,6 @@ for epoch in range(EPOCH):
 
         flag4encoder = torch.zeros(src.shape[0], src.shape[1], 3)
 
-        # src_padding_mask = (src == 0)
-        # tgt_padding_mask = (trg == 0)
 
         # CUDA 
         if torch.cuda.is_available():
@@ -230,10 +228,6 @@ for epoch in range(EPOCH):
         # out = out.view(-1, 2)
         # labels = labels.view(-1)
         ###  -------------------------------
-
-
-        # print(out.size())
-        # print(labels.size())
 
         loss = criterion(out, labels)
 

@@ -22,6 +22,9 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
     add_position = PositionalEncoding(d_model=97)
     if torch.cuda.is_available():
         add_position.cuda()
+        embed = embed.cuda()
+        embed_labels = embed_labels.cuda()
+        model.cuda()
 
     for step, (src, trg, labels) in enumerate(dataloader):
         
@@ -32,6 +35,7 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         trg_flag = trg_flag.expand(2, dataloader.batch_size)
 
         if torch.cuda.is_available():
+            
             flag4encoder = flag4encoder.cuda()
             src = src.cuda()
             trg = trg.cuda()
@@ -57,18 +61,14 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path):
         for index in tqdm(range(1, trg.size(0))):
             index_trg = trg[:index+1]
             index_trg = torch.cat([index_trg, embed_flag], dim=-1)
-            out = model.decode_last(index_trg, memory)
+
+            tgt_mask = model.generate_square_subsequent_mask(index+1)
+
+            out = model.decode_last(index_trg, memory, tgt_mask=tgt_mask)
             last_labels = torch.max(out, -1)[1].unsqueeze(0)
             trg_flag = torch.cat([trg_flag, last_labels], 0)
-            # if torch.cuda.is_available():
-            #     trg_flag = trg_flag.cuda()
             embed_flag = embed_labels(trg_flag)
 
-            # print(trg_flag)
-
-            # print(last_labels)
-            # print(trg_flag.size())
-            # print(labels.size())
 
         mask_matrix = (labels < 2)
         ground_truth = torch.masked_select(labels, mask_matrix)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # Test
     DICT_PATH = './checkpoint/dict_20000.pkl'
-    TEST_DIR = './data/dataset_eval'
+    TEST_DIR = './data/dataset_eval' if torch.cuda.is_available() else './data/train_pairs'
     EMBED_PATH = './model/save_embedding_97and3.ckpt'
     SAVE_PATH = './test_out'
     SAVE_FILE = 'demo.txt'
@@ -146,10 +146,10 @@ if __name__ == '__main__':
 
     embed_labels = get_flag_embed()
 
-    if torch.cuda.is_available():
-        embed = embed.cuda()
-        embed_labels = embed_labels.cuda()
-        model.cuda()
+    # if torch.cuda.is_available():
+    #     embed = embed.cuda()
+    #     embed_labels = embed_labels.cuda()
+    #     model.cuda()
 
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
                      save_path=SAVE_DIR)
