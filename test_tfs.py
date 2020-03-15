@@ -71,6 +71,9 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
 
         trg_flag = trg_flag[1:, :]
 
+        labels = labels.cpu()
+        trg_flag = trg_flag.cpu()
+
         mask_matrix = (labels < 2)
         ground_truth = torch.masked_select(labels, mask_matrix)
         predict_labels = torch.masked_select(trg_flag,
@@ -127,7 +130,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=250,
+                            batch_size=400,
                             # batch_size=2,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
