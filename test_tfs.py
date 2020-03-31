@@ -33,7 +33,7 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
 
             trg_flag = torch.tensor([[0], [2]]).long()
 
-            trg_flag = trg_flag.expand(2, dataloader.batch_size)
+            trg_flag = trg_flag.expand(2, trg.size(0))
 
             if torch.cuda.is_available():
                 
