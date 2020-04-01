@@ -4,4 +4,4 @@
 .idea
 __pycache__
 checkpoint/*
-
+*stanford-parser-3.5.2-models.jar
