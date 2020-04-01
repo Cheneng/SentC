@@ -51,9 +51,12 @@ def parse_files(files_dir='./data/train_pairs', save_dir='./'):
             for index, line in enumerate(f, 1):
                 line = line.split('\t', 1)
                 sent = casual_tokenize(line[0])
+                if len(sent) > 300:
+                    sent = sent[:300]
                 sent_dict = get_the_parse(sent)
                 sent_pos = get_sent_pos(sent, sent_dict)
-                print(sent, sent_pos)
+                # print(sent, sent_pos)
+                print(index, "/", 200000)
                 save_f.write('{0}\t{1}\t{2}\n'.format(line[0], ' '.join(map(str, sent_pos)), line[1]))
 
         save_f.close()
