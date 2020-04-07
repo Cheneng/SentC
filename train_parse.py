@@ -126,6 +126,7 @@ if torch.cuda.is_available() is True:
     torch.cuda.set_device(GPU_NUM)
     embed.load_state_dict(torch.load(EMBEDDING_PATH_RANDOM))
     embed = embed.cuda()
+    embed_parse = embed_parse.cuda()
     embed_labels = embed_labels.cuda()
     model.cuda()
     print("CUDA available")
