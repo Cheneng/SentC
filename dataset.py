@@ -67,6 +67,61 @@ class CompresDataset(data.Dataset):
         return len(self.origin)
 
 
+class CompresParseDataset(data.Dataset):
+    """
+    Dataset for origin sentence and headline.
+    """
+    def __init__(self, vocab, data_path='./data/parse_dir'):
+        """
+            用来做输入的数据集。
+        :param vocab: 包括将词转索引的功能类
+        :param data_path: 输入文件所在地址
+        :param reverse_src: 是否翻转输入
+        """
+        self.data_path = data_path
+        self.file_name = del_mac_DS(os.listdir(self.data_path))
+        self.vocab = vocab
+
+        self.origin = []
+        self.parse_pos = []
+        self.headline = []
+
+        for name in self.file_name:
+            print('loading', name)
+            with open(os.path.join(self.data_path, name), 'r') as f:
+                for line in f:
+                    if line == '\n':
+                        continue
+                    line = line.split('\t', 2)
+                    # print(line[1].split(' '))
+                    # print([int(x) for x in line[1].split(' ')])
+                    self.origin.append(line[0])
+                    # self.parse_pos.append(map(int, line[1].split(' ')))
+                    self.parse_pos.append([i if i < 16 else 16 for i in map(int, line[1].split(' '))])
+                    self.headline.append(line[2])
+
+    def __getitem__(self, index):
+        """
+        Return:
+            1. 原始句子作为encoder输入
+            2. 带有开头<SOS>的句子作为decoder输入
+            3. 输出label的ground truth
+        """
+        origin_sentence = self.vocab.sent_to_index(self.origin[index])
+        decode_input_sentence = copy.deepcopy(origin_sentence)
+        decode_input_sentence.insert(0, 1)  # insert the <sos> to the decoder sentence.
+
+        parse_pos = self.parse_pos[index]
+
+        out_label = match_list(self.origin[index], self.headline[index],
+                               flag_index=2)  # flag_index as the label for <sos>
+
+
+        return origin_sentence, parse_pos,  decode_input_sentence, out_label
+
+    def __len__(self):
+        return len(self.origin)
+
 class SeqAutoEncoderDataset(data.Dataset):
     """
     Dataset for encoder and decoder.
@@ -202,13 +257,28 @@ def split_word(sentence):
 if __name__ == '__main__':
     save_path = './checkpoint/dict_20000.pkl'
     vocab = pickle.load(open(save_path, 'rb'))
-    x = SyntaxDataset(vocab=vocab)
-    train_loader = data.DataLoader(x, collate_fn=syntax_fn,
+    # x = SyntaxDataset(vocab=vocab)
+    x = CompresParseDataset(vocab)
+    train_loader = data.DataLoader(x, 
+                                   collate_fn=my_parse_fn,
                                    batch_size=2)
 
     print(len(x))
 
+    print(x[0])
+
 
     for data1, data2, data3, data4 in train_loader:
-        print(data3)
+        print(data1)
         print(data2)
+        print(data3)
+        print(data4)
+
+        print(data1.size())
+        print(data2.size())
+        print(data3.size())
+        print(data4.size())
+
+        break
+
+

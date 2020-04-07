@@ -99,6 +99,31 @@ def my_fn(batch):
     return torch.LongTensor(data_batch1), torch.LongTensor(data_batch2), \
            torch.LongTensor(labels_batch)
 
+def my_parse_fn(batch):
+    # The input is [(origin, deco_input, label)]
+    batch_size = len(batch)
+    data_batch1 = []
+    data_batch2 = []    # for parse pos
+    data_batch3 = []
+    labels_batch = []
+
+    for i in range(batch_size):
+        minibatch = batch[i]
+        data_batch1.append(minibatch[0])
+        data_batch2.append(minibatch[1])
+        data_batch3.append(minibatch[2])
+        labels_batch.append(minibatch[3])
+
+    data_batch1 = padding_sequence(data_batch1, pre_pad=False, max_len=210)
+    data_batch2 = padding_sequence(data_batch2, pre_pad=False, max_len=210)
+    data_batch3 = padding_sequence(data_batch3, pre_pad=False, max_len=210)
+    labels_batch = padding_sequence(labels_batch, pre_pad=False, padding_value=2, max_len=210)
+
+    return torch.LongTensor(data_batch1), \
+           torch.LongTensor(data_batch2), \
+           torch.LongTensor(data_batch3), \
+           torch.LongTensor(labels_batch)
+
 def my_dis_fn(batch):
     # The input is [(origin, deco_input, label)]
     batch_size = len(batch)

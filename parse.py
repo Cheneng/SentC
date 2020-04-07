@@ -41,8 +41,8 @@ def get_the_parse(sent_list_in):
 def parse_files(files_dir='./data/train_pairs', save_dir='./'):
     vocab = pickle.load(open('./checkpoint/dict_20000.pkl', 'rb'))
     file_names = del_mac_DS(os.listdir(files_dir))
-    file_names.remove('file1.txt')
-    file_names.remove('file10.txt')
+    # file_names.remove('file1.txt')
+    # file_names.remove('file10.txt')
     print(file_names)
 
     for name in file_names:
