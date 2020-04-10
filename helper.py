@@ -433,9 +433,10 @@ class Cal_Score(object):
         P = self.correct_num / self.batch_num
         R = self.recall_correct / self.recall_all
         F1 = 2 * P * R / (P + R)
+        C_rate = self.C_rate_remain / self.C_rate_all
 
         prec = self.PP / self.PP_all
-        print('Precision {}; Recall {}; F1 {}; pp {}'.format(P, R, F1, prec))
+        print('Precision {}; Recall {}; F1 {}; pp {}; c_rate {}'.format(P, R, F1, prec, C_rate))
 
     def reset(self):
         self.C_rate_remain= 0

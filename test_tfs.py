@@ -76,8 +76,8 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
             
         cal_score.print()
 
-    with open(save_path, 'w') as f:
-        f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.format(P, R, F1, C_rate))
+    # with open(save_path, 'w') as f:
+    #     f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.format(P, R, F1, C_rate))
 
 
 if __name__ == '__main__':

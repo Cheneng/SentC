@@ -11,14 +11,7 @@ from tqdm import tqdm
 def test_transformer(model, dataloader, embed, embed_labels, embed_parse, save_path, all_step):
 
     model.eval()
-    C_rate_remain= 0
-    C_rate_all = 0
-    correct_num = 0
-    batch_num = 0
-    recall_correct = 0
-    recall_all = 0
-    PP = 0
-    PP_all = 0
+    cal_score = Cal_Score()
 
     with torch.no_grad():
 
@@ -83,45 +76,11 @@ def test_transformer(model, dataloader, embed, embed_labels, embed_parse, save_p
             labels = labels.detach()
             trg_flag = trg_flag.detach()
 
-            mask_matrix = (labels < 2)
-            ground_truth = torch.masked_select(labels, mask_matrix)
-            predict_labels = torch.masked_select(trg_flag,
-                                                mask_matrix)
-            print(ground_truth, predict_labels)
-            C_rate_all += len(predict_labels)   # length of all sentence
-            C_rate_remain += torch.sum(predict_labels).item()
-
-            correct_num += torch.sum(predict_labels == ground_truth).item()
-            batch_num += len(ground_truth)
-
-            p_truth = torch.masked_select(ground_truth, (predict_labels == 1))
-            PP += torch.sum(p_truth).float()
-            PP_all += torch.sum(predict_labels)
-
-            print(PP, PP_all)
-
-            recall_correct += torch.sum(ground_truth & predict_labels).item()
-            recall_all += torch.sum(ground_truth).item()
-
-            P = correct_num / batch_num
-            R = recall_correct / recall_all
-            F1 = 2 * P * R /  (P + R)
-
-            prec = PP / PP_all
-
-            print('Precision {}; Recall {}; F1 {}; pp {}'.format(P, R, F1, prec))
-
+            cal_score.update(trg_flag, labels)
+            cal_score.print()
             print('finish the step {} / {}'.format(step, all_step))
-            
-        P = correct_num / batch_num
-        R = recall_correct / recall_all
-        F1 = 2 * P * R /  (P + R)
-        prec = PP / PP_all
-        C_rate = C_rate_remain / C_rate_all
-
-        print('Precision {}; Recall {}; F1 {}; C_rate {}, pp {}'.format(P, R, F1, C_rate, prec))
-
-    model.train()
+        
+        cal_score.print()
 
     with open(save_path, 'w') as f:
         f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.format(P, R, F1, C_rate))
@@ -138,9 +97,6 @@ if __name__ == '__main__':
     SAVE_PATH = './test_out'
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
-
-    # MODEL_PATH = './checkpoint/normal/transformers_epoch90.ckpt'
-    # MODEL_PATH = './checkpoint/transformers_epoch90.ckpt'
 
     MODEL_PATH = './checkpoint/Parse_Transformer_lr0.0003_b200_head10_layer2_ff100/transformers_epoch90.ckpt'
 
@@ -161,8 +117,8 @@ if __name__ == '__main__':
     model = BasicTransformer(
         d_model=100,
         nhead=10,
-        num_encoder_layer=4,
-        num_decoder_layer=1,
+        num_encoder_layer=2,
+        num_decoder_layer=2,
         dim_feedforward=100
     )
 
