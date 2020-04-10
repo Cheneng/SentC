@@ -396,6 +396,57 @@ def get_gen_trainloader(vocab, batch_size=64, data_path='./data/partial_train_pa
                              shuffle=True)
     return trainloader
 
+class Cal_Score(object):
+    """
+        return P, R, F1, PP
+    """
+    def __init__(self):
+        self.C_rate_remain= 0
+        self.C_rate_all = 0
+        self.correct_num = 0
+        self.batch_num = 0
+        self.recall_correct = 0
+        self.recall_all = 0
+        self.PP = 0
+        self.PP_all = 0
+
+    def update(self, preds, labels):
+        mask_matrix = (labels < 2)
+        # get real preds & labels
+        ground_truth = torch.masked_select(labels, mask_matrix)
+        predict_labels = torch.masked_select(preds, mask_matrix)
+
+        self.C_rate_all += len(predict_labels)
+        self.C_rate_remain += torch.sum(predict_labels).item()
+
+        self.correct_num += torch.sum(predict_labels == ground_truth).item()
+        self.batch_num += len(ground_truth)
+
+        p_truth = torch.masked_select(ground_truth, (predict_labels == 1))
+        self.PP += torch.sum(p_truth).float()
+        self.PP_all += torch.sum(predict_labels)
+
+        self.recall_correct += torch.sum(ground_truth & predict_labels).item()
+        self.recall_all += torch.sum(ground_truth).item()
+
+    def print(self):
+        P = self.correct_num / self.batch_num
+        R = self.recall_correct / self.recall_all
+        F1 = 2 * P * R / (P + R)
+
+        prec = self.PP / self.PP_all
+        print('Precision {}; Recall {}; F1 {}; pp {}'.format(P, R, F1, prec))
+
+    def reset(self):
+        self.C_rate_remain= 0
+        self.C_rate_all = 0
+        self.correct_num = 0
+        self.batch_num = 0
+        self.recall_correct = 0
+        self.recall_all = 0
+        self.PP = 0
+        self.PP_all = 0
+
 POS_dict = {'ADJ': 0,
             'ADV': 1,
             'INTJ': 2,

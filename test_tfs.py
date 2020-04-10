@@ -11,12 +11,7 @@ from tqdm import tqdm
 def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step):
 
     model.eval()
-    C_rate_remain= 0
-    C_rate_all = 0
-    correct_num = 0
-    batch_num = 0
-    recall_correct = 0
-    recall_all = 0
+    cal_score = Cal_Score()
 
     with torch.no_grad():
 
@@ -75,43 +70,17 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
             labels = labels.detach()
             trg_flag = trg_flag.detach()
 
-            mask_matrix = (labels < 2)
-            ground_truth = torch.masked_select(labels, mask_matrix)
-            predict_labels = torch.masked_select(trg_flag,
-                                                mask_matrix)
-            print(ground_truth, predict_labels)
-            C_rate_all += len(predict_labels)   # length of all sentence
-            C_rate_remain += torch.sum(predict_labels).item()
-
-            correct_num += torch.sum(predict_labels == ground_truth).item()
-            batch_num += len(ground_truth)
-
-            recall_correct += torch.sum(ground_truth & predict_labels).item()
-            recall_all += torch.sum(ground_truth).item()
-
-            P = correct_num / batch_num
-            R = recall_correct / recall_all
-            F1 = 2 * P * R /  (P + R)
-
-            print('Precision {}; Recall {}; F1 {}'.format(P, R, F1))
-
+            cal_score.update(trg_flag, labels)
+            cal_score.print()
             print('finish the step {} / {}'.format(step, all_step))
             
-        P = correct_num / batch_num
-        R = recall_correct / recall_all
-        F1 = 2 * P * R /  (P + R)
-        C_rate = C_rate_remain / C_rate_all
-
-        print('Precision {}; Recall {}; F1 {}; C_rate {}'.format(P, R, F1, C_rate))
-
-    model.train()
+        cal_score.print()
 
     with open(save_path, 'w') as f:
         f.write('Precision {}, Recall {}, F1 {}, C_rate {}'.format(P, R, F1, C_rate))
 
 
 if __name__ == '__main__':
-
 
     # Test
     DICT_PATH = './checkpoint/dict_20000.pkl'
@@ -132,7 +101,7 @@ if __name__ == '__main__':
     data = dataset.CompresDataset(vocab=vocab, data_path=TEST_DIR, reverse_src=False)
     testloader = DataLoader(dataset=data,
                             collate_fn=my_fn,
-                            batch_size=1000,
+                            batch_size=1000 if torch.cuda.is_available() else 2,
                             # batch_size=2,
                             pin_memory=True if torch.cuda.is_available() else False,
                             shuffle=True)
@@ -146,14 +115,14 @@ if __name__ == '__main__':
     )
 
     # model.load(MODEL_PATH)
-    model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+    if torch.cuda.is_available():
+        model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
 
     # word embedding
     embed = nn.Embedding(num_embeddings=20000, embedding_dim=97)
     embed.load_state_dict(torch.load(EMBED_PATH))
 
     embed_labels = get_flag_embed()
-
 
     test_transformer(model=model, dataloader=testloader, embed=embed, embed_labels=embed_labels,
                      save_path=SAVE_DIR, all_step=(len(data) // testloader.batch_size))
