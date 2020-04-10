@@ -53,7 +53,7 @@ def test_transformer(model, dataloader, embed, embed_labels, embed_parse, save_p
             # parse
             parse_in = embed_parse(parse)
 
-            flag_de = torch.zeros([labels.shape[0], 1]).long()
+            flag_de = torch.zeros([labels.shape[0], 1]).long().cuda()
             flag_de = torch.cat([flag_de, parse[:, :-1]], dim=1)
             parse_de = embed_parse(flag_de)
 
