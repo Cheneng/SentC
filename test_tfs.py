@@ -41,8 +41,8 @@ def test_transformer(model, dataloader, embed, embed_labels, save_path, all_step
             src = embed(src)
             trg = embed(trg)
 
-            src = add_position(src)
-            trg = add_position(trg)
+            # src = add_position(src)
+            # trg = add_position(trg)
 
             src = torch.cat([src, flag4encoder], dim=2)
 
@@ -90,8 +90,10 @@ if __name__ == '__main__':
     SAVE_FILE = 'demo.txt'
     SAVE_DIR = os.path.join(SAVE_PATH, SAVE_FILE)
 
-    MODEL_PATH = './checkpoint/normal/transformers_epoch90.ckpt'
+    # MODEL_PATH = './checkpoint/normal/transformers_epoch90.ckpt'
+    MODEL_PATH = './checkpoint/Transformer_lr0.0003_b200_head10_layer2_ff100_no_pos/transformers_epoch90.ckpt'
     # MODEL_PATH = './checkpoint/transformers_epoch90.ckpt'
+
 
     if os.path.exists(SAVE_PATH) is False:
         os.makedirs(SAVE_PATH)
@@ -109,8 +111,8 @@ if __name__ == '__main__':
     model = BasicTransformer(
         d_model=100,
         nhead=10,
-        num_encoder_layer=4,
-        num_decoder_layer=1,
+        num_encoder_layer=2,
+        num_decoder_layer=2,
         dim_feedforward=100
     )
 
